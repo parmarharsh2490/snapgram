@@ -6,6 +6,7 @@ import { Loader } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { useSignOutAccount } from "@/lib/react-query/queries";
 import { useUserContext, INITIAL_USER } from "@/context/AuthContext";
+import { Switch } from "../ui/switch";
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
@@ -27,7 +28,8 @@ const LeftSidebar = () => {
   return (
     <nav className="leftsidebar">
       <div className="flex flex-col gap-11">
-        <Link to="/" className="flex gap-3 items-center">
+       <div className="flex  items-center gap-2">
+       <Link to="/" className="flex gap-3 items-center">
           <img
             src="/assets/images/logo.svg"
             alt="logo"
@@ -35,7 +37,10 @@ const LeftSidebar = () => {
             height={36}
           />
         </Link>
-
+        {/* <Switch
+                      aria-readonly
+                    /> */}
+       </div>
         {isLoading || !user.email ? (
           <div className="h-14">
             <Loader />

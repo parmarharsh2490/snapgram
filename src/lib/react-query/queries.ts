@@ -25,8 +25,11 @@ import {
   searchPosts,
   savePost,
   deleteSavedPost,
+  createComment,
+  likeComment,
+  getComments,
 } from "@/lib/appwrite/api";
-import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
+import { INewComment, INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 
 // ============================================================
 // AUTH QUERIES
@@ -242,5 +245,87 @@ export const useUpdateUser = () => {
         queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
       });
     },
+  });
+};
+
+export const useCreateComments = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ postId, comment, userId } : { postId :string, comment : string, userId : string }) => createComment({ postId, comment, userId }),
+    {
+      onMutate: async (newComment) => {
+        console.log(newComment);
+        await queryClient.cancelQueries(['getComments', newComment.postId]);
+
+        const previousComments = queryClient.getQueryData(['getComments', newComment.postId]);
+
+        queryClient.setQueryData(['getComments', newComment.postId], (old) => [
+          { ...newComment},
+          ...old,
+        ]);
+
+        return { previousComments };
+      },
+      onError: (err, newComment, context) => {
+        queryClient.setQueryData(['getComments', newComment.postId], context.previousComments);
+        console.error('Error creating comment:', err);
+        alert(`Error: ${err.message || 'An unknown error occurred'}`);
+      },
+      onSettled: (newComment) => {
+        queryClient.invalidateQueries(['getComments', newComment?.postId]);
+      },
+      onSuccess: (newComment) => {
+        // alert('Hi')
+        queryClient.invalidateQueries(['getComments', newComment?.postId]);
+      },
+    }
+  );
+};
+
+export const useLikeComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ commentId, userId, commentLikeArray }) => likeComment({ commentId, userId, commentLikeArray }),
+    {
+      onMutate: async (newLike) => {
+        // await queryClient.cancelQueries(['getComments', newLike.commentId]);
+
+        // const previousComments = queryClient.getQueryData(['getComments', newLike.commentId]);
+
+        // queryClient.setQueryData(['getComments', newLike.commentId], (old) =>
+        //   old.map((comment) =>
+        //     comment.$id === newLike.commentId
+        //       ? {
+        //           ...comment,
+        //           likesComment: comment.likesComment.includes(newLike.userId)
+        //             ? comment.likesComment.filter((id) => id !== newLike.userId)
+        //             : [...comment.likesComment, newLike.userId],
+        //         }
+        //       : comment
+        //   )
+        // );
+        console.log(newLike);
+        
+        // return { previousComments };
+      },
+      // onError: (err, newLike, context) => {
+      //   queryClient.setQueryData(['getComments', newLike.commentId], context.previousComments);
+      // },
+      // onSettled: (newLike) => {
+      //   queryClient.invalidateQueries(['getComments', newLike.commentId]);
+      // },
+      onSuccess(newLike) {  
+        queryClient.invalidateQueries(['getComments', newLike.commentId]);
+      }
+    }
+  );
+};
+
+export const useGetComments = (postId : string) => {
+  return useQuery({
+    queryKey: ['getComments', postId],
+    queryFn: () => getComments(postId),
+    enabled: !!postId,
+    keepPreviousData: true,
   });
 };

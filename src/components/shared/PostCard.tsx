@@ -4,14 +4,41 @@ import { Link } from "react-router-dom";
 import { PostStats } from "@/components/shared";
 import { multiFormatDateString } from "@/lib/utils";
 import { useUserContext } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { useDeleteSavedPost, useGetCurrentUser, useSavePost } from "@/lib/react-query/queries";
 
 type PostCardProps = {
   post: Models.Document;
 };
 
 const PostCard = ({ post }: PostCardProps) => {
-  const { user } = useUserContext();
+  const { data: currentUser } = useGetCurrentUser();
+  const [isSaved, setIsSaved] = useState(false); 
+  const { mutate: savePost } = useSavePost();
+  const { mutate: deleteSavePost } = useDeleteSavedPost();
+  const savedPostRecord = currentUser?.save.find(
+    (record: Models.Document) => record?.post?.$id === post.$id
+  );
 
+  useEffect(() => {
+    setIsSaved(!!savedPostRecord);
+  }, [currentUser]);
+  const handleSavePost = (
+    e: React.MouseEvent<HTMLImageElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
+
+    if (savedPostRecord) {
+      setIsSaved(false);
+      return deleteSavePost(savedPostRecord.$id);
+    }
+
+    savePost({ userId: user.id, postId: post.$id });
+    setIsSaved(true);
+  };
+  const [showComments,setShowCommets] = useState<boolean>(false);
+  const { user } = useUserContext();
+  console.log(showComments);
   if (!post.creator) return;
 
   return (
@@ -43,8 +70,19 @@ const PostCard = ({ post }: PostCardProps) => {
               </p>
             </div>
           </div>
+             {/* <div className="flex"> */}
+      {/* </div> */}
         </div>
 
+       <div className="flex gap-5">
+       <img
+          src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
+          alt="share"
+          width={20}
+          height={20}
+          className="cursor-pointer"
+          onClick={(e) => handleSavePost(e)}
+        />
         <Link
           to={`/update-post/${post.$id}`}
           className={`${user.id !== post.creator.$id && "hidden"}`}>
@@ -55,6 +93,7 @@ const PostCard = ({ post }: PostCardProps) => {
             height={20}
           />
         </Link>
+       </div>
       </div>
 
       <Link to={`/posts/${post.$id}`}>
@@ -73,10 +112,15 @@ const PostCard = ({ post }: PostCardProps) => {
           src={post.imageUrl || "/assets/icons/profile-placeholder.svg"}
           alt="post image"
           className="post-card_img"
+          
         />
       </Link>
 
-      <PostStats post={post} userId={user.id} />
+      <PostStats post={post} userId={user.id} showComments={showComments} setShowCommets={setShowCommets} />
+   
+
+
+      {/* <Comments post={post} showComments={showComments} setShowCommets={setShowCommets} /> */}
     </div>
   );
 };

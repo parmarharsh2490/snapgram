@@ -34,6 +34,7 @@ module.exports = {
         'light-3': '#7878A3',
         'light-4': '#5C5C7B',
       },
+      
       screens: {
         'xs': '480px',
       
@@ -59,6 +60,11 @@ module.exports = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+      },
+    },
+    variants: {
+      extend: {
+        invert: ['dark'],
       },
     },
   },
