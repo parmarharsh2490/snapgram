@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { Button, Input } from "../ui";
 import { useCreateComments, useGetComments, useLikeComment } from "@/lib/react-query/queries";
 import { useUserContext } from "@/context/AuthContext";
@@ -6,9 +6,9 @@ import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CommentValidation } from "@/lib/validation";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Form, FormField, FormItem } from "@/components/ui/form";
 
-const Comments = ({ post, showComments }) => {
+const Comments = ({ post , showComments } : {post : any,showComments : boolean}) => {
   const form = useForm({
     resolver: zodResolver(CommentValidation),
     defaultValues: {

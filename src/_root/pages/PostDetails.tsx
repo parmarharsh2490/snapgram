@@ -48,7 +48,7 @@ const PostDetails = () => {
     navigate(-1);
   };
   const savedPostRecord = currentUser?.save.find(
-    (record: Models.Document) => record?.post?.$id === post.$id
+    (record: Models.Document) => record?.post?.$id === post?.$id
   );
   const handleSavePost = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>

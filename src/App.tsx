@@ -18,14 +18,7 @@ import SigninForm from "@/_auth/forms/SigninForm";
 import { Toaster } from "@/components/ui/toaster";
 
 import "./globals.css";
-import { useState } from "react";
 const App = () => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark', !isDarkMode);
-  };
 
   return (
     <main className="flex h-screen">
